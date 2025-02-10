@@ -10,9 +10,11 @@
 #include "util.h"
 using namespace std;
 
+const int ALPHABET_SIZE = 26;
+
 class Node {
  public:
-  Node *children[26];
+  Node *children[ALPHABET_SIZE];
   bool is_word;
   int timestamp;
   static int g_timestamp;

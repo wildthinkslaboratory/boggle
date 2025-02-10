@@ -3,7 +3,7 @@
 int Node::g_timestamp = 0;
 
 Node::Node() : timestamp(0), is_word(false) {
-  for (int i = 0; i < 26; i++) {
+  for (int i = 0; i < ALPHABET_SIZE; i++) {
     children[i] = NULL;
   }
 }
@@ -30,7 +30,7 @@ void Node::print_words(string prefix) const {
   if (is_word && Node::g_timestamp > 0) {
     cout << prefix << endl;
   }
-  for (int i = 0; i < 26; i++) {
+  for (int i = 0; i < ALPHABET_SIZE; i++) {
     if (children[i] != NULL) {
       string new_prefix = prefix;
       new_prefix.push_back(CHR(i));
@@ -77,7 +77,7 @@ int Node::score_tile(const Board &b, int tile, int depth) {
 }
 
 Node::~Node() {
-  for (size_t i = 0; i < 26; i++) {
+  for (size_t i = 0; i < ALPHABET_SIZE; i++) {
     if (children[i] != NULL) delete children[i];
   }
 }
@@ -94,7 +94,7 @@ string clean_string(string &s) {
 
 string dict_word;
 bool read_dictionary(Node &root) {
-  fstream dictionary("./dict.txt");
+  fstream dictionary("./dictSmall.txt");
   if (!dictionary) {
     cerr << "no dictionary file" << endl;
     return false;
