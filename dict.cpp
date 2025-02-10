@@ -65,7 +65,7 @@ int Node::score_tile(const Board &b, int tile, int depth) {
   for (int i = 0; i < 8; i++) {
     int neighbor = neighbors[tile][i];
     if (neighbor != -1 && !used_tiles[neighbor]) {
-      int letter_id = b.letters[neighbor];
+      int letter_id = b[neighbor];
       if (children[letter_id] != NULL) {
         score += children[letter_id]->score_tile(b, neighbor, depth + 1);
       }
