@@ -17,6 +17,7 @@ inline int board_index(int row, int col) { return (row * GRID_SIZE) + col; }
 // member functions.
 class Board : public array<int, BOARD_SIZE> {
  public:
+  int score;
   Board();
   Board(const string &b);
   void print_grid() const;
@@ -30,13 +31,13 @@ void build_neighbors();
 void print_neighbors();
 
 // Board member functions
-inline Board::Board() {
+inline Board::Board() : score(0) {
   for (int i = 0; i < size(); i++) {
     operator[](i) = random_int(26);
   }
 }
 
-inline Board::Board(const string &b) {
+inline Board::Board(const string &b) : score(0) {
   assert(b.length() == size());
   for (int i = 0; i < b.length(); i++) {
     operator[](i) = IDX(b[i]);
@@ -53,7 +54,8 @@ inline void Board::print_grid() const {
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Board &b) {
-  for (int i = 0; i < b.size(); i++) os << CHR(b[i]) << ' ';
+  for (int i = 0; i < b.size(); i++) os << CHR(b[i]);
+  cout << "\tSCORE: " << b.score;
   return os;
 }
 

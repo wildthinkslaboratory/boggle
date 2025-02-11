@@ -1,6 +1,7 @@
 #include "dict.h"
 
 int Node::g_timestamp = 0;
+int letter_counts[ALPHABET_SIZE] = {[0 ... 24] = 0};
 
 Node::Node() : timestamp(0), is_word(false) {
   for (int i = 0; i < ALPHABET_SIZE; i++) {
@@ -95,7 +96,7 @@ string clean_string(string &s) {
 
 bool read_dictionary(Node &root) {
   string dict_word;
-  fstream dictionary("./dictSmall.txt");
+  fstream dictionary("./dictBig.txt");
   if (!dictionary) {
     cerr << "no dictionary file" << endl;
     return false;
