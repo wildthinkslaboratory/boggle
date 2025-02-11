@@ -13,7 +13,7 @@ inline int board_index(int row, int col) { return (row * GRID_SIZE) + col; }
 
 // trying out this stl array class
 // it's slightly slower than a c array but it's
-// so nice and readable and I can get to have
+// so nice and readable and I get to have
 // member functions.
 class Board : public array<int, BOARD_SIZE> {
  public:

@@ -1,6 +1,6 @@
-### Rules of Boggle
+### Introduction
 
-The rules of boggle can be found [here](https://en.wikipedia.org/wiki/Boggle).
+Boggle is a game played with a 5 by 5 grid of lettered tiles. Points are scored by finding paths in the letter grid that spell words. The rules of boggle can be found [here](https://en.wikipedia.org/wiki/Boggle). The goal of this code is to find the highest scoring boggle board for a given dictionary of words. The size of the search space is $25^26$, so it is too large to check all possible solutions. If we assume a normal sized dictionary, finding the optimal solution is unlikely with current computing resources and algorithms. Proving a solution is optimal is even harder. The best strategies for this kind of problem is a local search method like hill climbing or genetic algorithms. This code implements a steepest ascent hill climbing method to find high scoring boards.
 
 ### Scoring the Board
 
@@ -14,11 +14,13 @@ I cached the indexes of each tiles neighboring tiles to avoid computing them in 
 
 ### Steepest Ascent
 
-For my steepest ascent move on a board, I scored every letter change to every tile and took the maximal board. This gives every board a neighborhood of size 25 X 26. Testing with both `dictSmall.txt` and `dictBig.txt` a steepest ascent climb hits it's maximum at around 20 iterations. It rarely continues to improve beyond 30 iterations.
+For my steepest ascent move on a board, I scored every letter change to every tile and took the maximal board. This gives every board a neighborhood of size 25 X 26 and we score them all and pick the best. Then reapply a steepest ascent move to this new board. Testing with both `dictSmall.txt` and `dictBig.txt` a steepest ascent climb hits it's maximum at around 20 iterations. It rarely continues to improve beyond 30 iterations.
+
+To start I'm going to do 35 iterations of steepest ascents on lots of random boards and just peek around the space to see what I get.
 
 ```
 hsngdcaiesprtsrseatedmbld	6036
 tersnoseigprtndeaiesdclpr	6066
 ```
 
-I got to boards in the low 6000's and lots of boards in the 5000's. Next I will try to get better boards by messing with these high scoring boards.
+I got two boards in the low 6000's and lots of boards in the 5000's. Next I will try to get better boards by messing with these high scoring boards.
