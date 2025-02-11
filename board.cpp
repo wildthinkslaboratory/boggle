@@ -22,13 +22,25 @@ int get_neighbor(int tile, int neighbor) {
 // build the neighbor cache
 void build_neighbors() {
   neighbors = new int *[BOARD_SIZE];
-
   for (int i = 0; i < BOARD_SIZE; i++) {
-    neighbors[i] = new int[8];
+    neighbors[i] = new int[9];
+    std::fill_n(neighbors[i], 9, -1);
 
+    int num_neighbors = 0;
     for (int j = 0; j < 8; j++) {
       int neighbor = get_neighbor(i, j);
-      neighbors[i][j] = get_neighbor(i, j);
+
+      if (neighbor != -1) {
+        neighbors[i][num_neighbors] = get_neighbor(i, j);
+        num_neighbors++;
+      }
     }
+  }
+}
+
+void print_neighbors() {
+  for (int i = 0; i < BOARD_SIZE; i++) {
+    for (int j = 0; j < 9; j++) cout << neighbors[i][j] << ' ';
+    cout << endl;
   }
 }

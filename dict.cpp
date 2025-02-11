@@ -52,23 +52,24 @@ bool Node::lookup_word(const string &s, int i) const {
   }
 }
 
+// This function is the inner loop so I've spent some time
+// optimizing it. Readability is sacrificed some for speed.
+// Using a pointer to walk neighbors instead of array
+// index is slightly faster. Not sure if it warrants the
+// reduced readability.
 bool used_tiles[25] = {[0 ... 24] = false};
 int Node::score_tile(const Board &b, int tile, int depth) {
   int score = 0;
-
   if (is_word && timestamp != Node::g_timestamp) {
     score += word_score(depth);
     timestamp = Node::g_timestamp;
   }
 
   used_tiles[tile] = true;
-  for (int i = 0; i < 8; i++) {
-    int neighbor = neighbors[tile][i];
-    if (neighbor != -1 && !used_tiles[neighbor]) {
-      int letter_id = b[neighbor];
-      if (children[letter_id] != NULL) {
-        score += children[letter_id]->score_tile(b, neighbor, depth + 1);
-      }
+  for (int *npos = neighbors[tile]; *npos != -1; ++npos) {
+    if (used_tiles[*npos]) continue;
+    if (children[b[*npos]] != NULL) {
+      score += children[b[*npos]]->score_tile(b, *npos, depth + 1);
     }
   }
   used_tiles[tile] = false;
@@ -77,7 +78,7 @@ int Node::score_tile(const Board &b, int tile, int depth) {
 }
 
 Node::~Node() {
-  for (size_t i = 0; i < ALPHABET_SIZE; i++) {
+  for (int i = 0; i < ALPHABET_SIZE; i++) {
     if (children[i] != NULL) delete children[i];
   }
 }
@@ -92,8 +93,8 @@ string clean_string(string &s) {
   return clean;
 }
 
-string dict_word;
 bool read_dictionary(Node &root) {
+  string dict_word;
   fstream dictionary("./dictSmall.txt");
   if (!dictionary) {
     cerr << "no dictionary file" << endl;

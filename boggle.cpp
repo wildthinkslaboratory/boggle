@@ -30,7 +30,6 @@ int main() {
     cout << "run time " << run_time << endl;
     cout << "score " << score << endl;
   }
-
   //   root.print_words();
 
   return 0;

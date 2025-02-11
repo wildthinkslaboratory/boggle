@@ -12,6 +12,16 @@ using namespace std;
 
 const int ALPHABET_SIZE = 26;
 
+// we store the dictionary in a Trie made of nodes
+// children nodes are indexed by alphabet letters
+// encoded as ints.
+
+// the timestamp optimizations is a cool one. We
+// increment the global timestamp g_timestamp each
+// time we begin a search. When we find a word, we
+// can  check to see if we've encountered this word
+// before on this search by checking the node's local
+// timestamp and comparing it with the global timestamp.
 class Node {
  public:
   Node *children[ALPHABET_SIZE];

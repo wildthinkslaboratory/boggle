@@ -11,6 +11,10 @@ const int GRID_SIZE = 5;
 const int BOARD_SIZE = GRID_SIZE * GRID_SIZE;
 inline int board_index(int row, int col) { return (row * GRID_SIZE) + col; }
 
+// trying out this stl array class
+// it's slightly slower than a c array but it's
+// so nice and readable and I can get to have
+// member functions.
 class Board : public array<int, BOARD_SIZE> {
  public:
   Board();
@@ -23,7 +27,9 @@ class Board : public array<int, BOARD_SIZE> {
 extern int **neighbors;
 int get_neighbor(int tile, int neighbor);
 void build_neighbors();
+void print_neighbors();
 
+// Board member functions
 inline Board::Board() {
   for (int i = 0; i < size(); i++) {
     operator[](i) = random_int(26);
