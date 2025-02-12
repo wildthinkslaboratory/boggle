@@ -94,9 +94,9 @@ string clean_string(string &s) {
   return clean;
 }
 
-bool read_dictionary(Node &root) {
+bool read_dictionary(Node &root, char *dict_file) {
   string dict_word;
-  fstream dictionary("./dictBig.txt");
+  fstream dictionary(dict_file);
   if (!dictionary) {
     cerr << "no dictionary file" << endl;
     return false;

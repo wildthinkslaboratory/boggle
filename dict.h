@@ -39,7 +39,7 @@ class Node {
   void print_words(string prefix) const;
 };
 
-bool read_dictionary(Node &root);
+bool read_dictionary(Node &root, char *dict_file);
 
 inline int word_score(int l) {
   switch (l) {
