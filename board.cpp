@@ -44,3 +44,17 @@ void print_neighbors() {
     cout << endl;
   }
 }
+
+// bool read_boards(char *board_file) {
+//   string board;
+//   fstream board_stream(board_file);
+//   if (!dictionary) {
+//     cerr << "no dictionary file" << endl;
+//     return false;
+//   }
+//   while (getline(dictionary, dict_word)) {
+//     dict_word = clean_string(dict_word);
+//     if (dict_word.length() > 0) root.add_word(dict_word, 0);
+//   }
+//   return true;
+// }

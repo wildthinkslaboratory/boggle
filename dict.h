@@ -1,14 +1,8 @@
 #ifndef DICT
 #define DICT
-#include <cctype>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <vector>
 
 #include "board.h"
 #include "util.h"
-using namespace std;
 
 const int ALPHABET_SIZE = 26;
 

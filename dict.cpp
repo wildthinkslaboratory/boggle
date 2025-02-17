@@ -1,5 +1,12 @@
 #include "dict.h"
 
+#include <cctype>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <vector>
+using namespace std;
+
 int Node::g_timestamp = 0;
 int letter_counts[ALPHABET_SIZE] = {[0 ... 24] = 0};
 

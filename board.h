@@ -55,7 +55,7 @@ inline void Board::print_grid() const {
 
 inline std::ostream &operator<<(std::ostream &os, const Board &b) {
   for (int i = 0; i < b.size(); i++) os << CHR(b[i]);
-  os << "\tSCORE: " << b.score;
+  os << "\tSCORE:\t" << b.score;
   return os;
 }
 
