@@ -86,9 +86,10 @@ Board first_up_move(Node &root, const Board &b) {
 // we randomly flip a tile and letter and we keep
 // flipping until we improve our score. We quit after
 // 200 failed flips.
+
 Board hill_climb_move(Node &root, const Board &b) {
   Board nb = b;
-  for (size_t j = 0; j < 200; j++) {
+  for (size_t j = 0; j < 300; j++) {
     int index = rand() % 25;  // random tile and letter
     int letter = rand() % 26;
     nb[index] = letter;
@@ -113,7 +114,7 @@ void steepest_ascent_probes(Node &root) {
     Board best = b;
     int it_to_max = 0;
     double start_time = get_cpu_time();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 40; i++) {
       b = steepest_ascent_move(root, b);
       if (b.score > best.score) {
         best = b;
@@ -182,6 +183,85 @@ void hill_climb_probes(Node &root) {
   outfile.close();
 }
 
+void perturb(Board &b) {
+  for (int k = 0; k < 8; k++) {
+    // randomly flip a tile
+    int index = rand() % 25;  // random tile and letter
+    int letter = rand() % 26;
+    b[index] = letter;
+  }
+}
+
+Board polish(Node &root, const Board &iboard) {
+  int original_score = iboard.score;
+  Board best = iboard;
+  for (int k = 0; k < 20; k++) {
+    Board b = iboard;
+    perturb(b);
+
+    for (int j = 0; j < 15; j++) {
+      b = steepest_ascent_move(root, b);
+      if (b.score > best.score) {
+        best = b;
+      }
+    }
+  }
+  return best;
+}
+
+//
+//
+//
+int good_letters[19] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k',
+                        'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u'};
+
+void search(Node &root) {
+  Board very_best;
+
+  int p_size = 600;  // population size
+  int b_size = 10;   // size of high scoring group
+  vector<Board> best;
+
+  // main loop
+  // we can have a max iterations and a max time
+  for (int i = 0; i < 1; i++) {
+    // create a population of boards
+    Board population[p_size];
+
+    // first we hill climb on our boards
+    // we do a full probe that requires 100 iterations to reach maximums
+    cout << "hill climbing " << endl;
+    for (int j = 0; j < p_size; j++) {
+      for (int it = 0; it < 95; it++) {
+        population[j] = hill_climb_move(root, population[j]);
+        if (population[j].score > very_best.score) {
+          very_best = population[j];
+          cout << very_best << endl;
+        }
+      }
+    }
+
+    // move high scoring boards into the best group
+    // need to sort them and take highest 10%
+    // but I don't want to write a sorting algorithm
+    for (int j = 0; j < p_size; j++) {
+      if (population[j].score > 5000) {
+        best.push_back(population[j]);
+      }
+    }
+
+    cout << "polishing" << endl;
+    // now we polish our high scorers
+    for (size_t j = 0; j < best.size(); j++) {
+      best[j] = polish(root, best[j]);
+      if (best[j].score > very_best.score) {
+        very_best = best[j];
+        cout << very_best << endl;
+      }
+    }
+  }
+}
+
 //
 //
 //
@@ -199,12 +279,6 @@ int main(int argc, char **argv) {
 
   int command_arg = dict_arg + 1;
   string command = argv[command_arg];
-  string s;
-  Board b;
-  if (argc == command_arg + 2) {  // read in a board if given
-    s = argv[dict_arg + 2];
-    b = Board(s);
-  }
 
   Node dictionary_root;
   if (read_dictionary(dictionary_root, argv[dict_arg])) {  // read dictionary
@@ -216,19 +290,42 @@ int main(int argc, char **argv) {
         steepest_ascent_probes(dictionary_root);
       } else if (command == "hc_probes") {
         hill_climb_probes(dictionary_root);
+      } else if (command == "search") {
+        search(dictionary_root);
       } else {
         output_commandline_args();
       }
     } else {
       if (command == "score") {
+        string s;
+        Board b;
+        if (argc == command_arg + 2) {  // read in a board if given
+          s = argv[dict_arg + 2];
+          b = Board(s);
+        }
+
         score_board(dictionary_root, b);
         cout << b << endl;
 
       } else if (command == "words") {
+        string s;
+        Board b;
+        if (argc == command_arg + 2) {  // read in a board if given
+          s = argv[dict_arg + 2];
+          b = Board(s);
+        }
+
         score_board(dictionary_root, b);
         dictionary_root.print_words();
 
       } else if (command == "benchmark") {
+        string s;
+        Board b;
+        if (argc == command_arg + 2) {  // read in a board if given
+          s = argv[dict_arg + 2];
+          b = Board(s);
+        }
+
         double start_time = get_cpu_time();
         for (int i = 0; i < 1000; i++) score_board(dictionary_root, b);
         cout << fixed;
@@ -237,11 +334,25 @@ int main(int argc, char **argv) {
              << endl;
         cout << b << endl;
       } else if (command == "polishing") {
+        string s;
+        Board b;
+        if (argc == command_arg + 2) {  // read in a board if given
+          s = argv[dict_arg + 2];
+          b = Board(s);
+        }
+
         double start_time = get_cpu_time();
         score_board(dictionary_root, b);
         Board refined_board = steepest_ascent_double(dictionary_root, b);
         cout << "time: " << get_cpu_time() - start_time << endl;
         cout << refined_board << endl;
+      } else if (command == "perturb") {
+        read_boards(argv[dict_arg + 2]);
+        for (size_t i = 0; i < input_boards.size(); i++) {
+          score_board(dictionary_root, input_boards[i]);
+          Board polished = polish(dictionary_root, input_boards[i]);
+          cout << input_boards[i] << "\t" << polished << endl;
+        }
       } else {
         output_commandline_args();
       }

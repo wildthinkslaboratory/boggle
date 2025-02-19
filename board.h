@@ -3,6 +3,7 @@
 #include <array>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "util.h"
 using namespace std;
@@ -29,6 +30,9 @@ extern int **neighbors;
 int get_neighbor(int tile, int neighbor);
 void build_neighbors();
 void print_neighbors();
+
+extern vector<Board> input_boards;
+bool read_boards(char *board_file);
 
 // Board member functions
 inline Board::Board() : score(0) {

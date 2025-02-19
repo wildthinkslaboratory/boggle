@@ -1,5 +1,8 @@
 #include "board.h"
 
+#include <fstream>
+#include <vector>
+
 // We cash the neighbors of a tile to save time while scoring a board
 // These represent the 8 neighbors of a tile or grid position
 // up, down, left, right and the four diagonals
@@ -45,16 +48,16 @@ void print_neighbors() {
   }
 }
 
-// bool read_boards(char *board_file) {
-//   string board;
-//   fstream board_stream(board_file);
-//   if (!dictionary) {
-//     cerr << "no dictionary file" << endl;
-//     return false;
-//   }
-//   while (getline(dictionary, dict_word)) {
-//     dict_word = clean_string(dict_word);
-//     if (dict_word.length() > 0) root.add_word(dict_word, 0);
-//   }
-//   return true;
-// }
+vector<Board> input_boards;
+bool read_boards(char *board_file) {
+  string board;
+  fstream board_stream(board_file);
+  if (!board_stream) {
+    cerr << "no dictionary file" << endl;
+    return false;
+  }
+  while (getline(board_stream, board)) {
+    input_boards.push_back(board);
+  }
+  return true;
+}

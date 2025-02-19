@@ -26,7 +26,16 @@ function but stops as soon as an improved board is found rather than investigati
 As currently implemented, this approach is biased towards tiles and letters with low indexes.
 We then ran a series of 200 probes in each style and looked at the average and
 standard deviation of the score achieved, number of iterations to maximal score and the time
-required. Results were similar for all approaches. First best had slightly higher scores but also slightly higher times.
+required. We then took the average score divided by the time per move times the average number of iterations to max.
+
+| stat               | hill climb | best first | steepest ascent |
+| ------------------ | ---------- | ---------- | --------------- |
+| time per move      | 0.01       | 0.02       | 0.07            |
+| score              | 4201       | 4559       | 4118            |
+| itertations to max | 75         | 92         | 22              |
+| score / time       | 5601       | 2478       | 2674            |
+
+The hill climb approach did the best under this metric. Steepest ascent might be useful for polishing or finishing high scoring boards.
 
 High scoring boards from our probe experiment.
 
@@ -40,9 +49,37 @@ I got three boards in the low 6000's and lots of boards in the 5000's. Next I wi
 
 ### Can peak solutions be improved by perturbations?
 
-It feels like once you get to the peak of a hill climb, that is really the peak.  
-Larger perturbations and downward moves don't seem to lead to better solutions.  
-If that were the case then you just need to sample a large number of probes. Simulated annealing does this nicely.
+Next we try to improve boards that have hit a maximum through hill climbing or steepest ascent. We perturb a board by flipping a number of tiles randomly.
+For each board we try a perturbation and then we use steepest ascent to climb from the perturbed board. We do this whole process a number of times, steepest ascent on a few different perturbations. We then report the improvement for the board.
 
-- hillclimbing
-- simulated annealing
+We'll do this on a set of 72 boards found in the probe experiments. All boards have scores exceeding 5000.
+
+Perturbations followed by hill climbing produced no improvements at all. Perturbations followed by steepest ascent produced significant improvements. If we make 8 random tile changes followed by steepest ascent, then do that 20 times and take the best board. The 72 original boards had an average score of 5294. After perturbing them, they had an average score of 5656 with an average improvement of 326.
+
+We now have quite a lot of boards in the 6000s.
+
+```
+dhcrsesaegpltndeaiesmrtsr	SCORE:	6141
+gdesgentrnrtaieselpsdapot	SCORE:	6026
+dhcrsesaegpltndeaiesmrtsr	SCORE:	6141
+rsngseetipdtralnisecgemsd	6028
+sogstpinerlatidcstandereg	6038
+uoseddplcrieaiesrtndatesg	6044
+igdsrseneprtrilaetasdscnp	6058
+sedgspinerlatimcertadrsel	6059
+gsedgentrirtiamselpedapsr	6092
+rstgsdenalliredpatesmsctr	6095
+insdiotesgcrtneeaiersplds	6100
+rdlprseiaegnrtseatenmscid	6137
+rclpseiaeidntrdgietanrssc	6197
+dhcrsesaegprtndeaiesbltsr	6221
+nsladgitesdnrtrseiaersplb	6229
+rttsreaiegplrndseatedchsr	6247
+```
+
+### Putting it together in a local search algorithm
+
+It seems important to hit a large number of starting points either by starting lots of different random boards and hill climbing on the or having
+substantial perturbation and down hill moves as we go along. Once good boards have been found that are locally maximal, we need to perturb them and then polish them with steepest ascent climbing.
+
+We will start with a large population of boards, which we'll climb on in parallel using our efficient hill climbing moves. Boards that show potential will be moved to a different group for polishing with perturbation and steepest ascent. We'll continue in this fashion moving both groups forward, adding new boards to the general population and shifting promising boards to the polishing group when appropriate.
