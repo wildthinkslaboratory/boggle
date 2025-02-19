@@ -22,6 +22,7 @@ class Board : public array<int, BOARD_SIZE> {
   Board();
   Board(const string &b);
   void print_grid() const;
+  bool operator<(const Board &other) const;
 };
 
 // We cash the neighbors of a tile to save time while scoring a board
@@ -61,6 +62,10 @@ inline std::ostream &operator<<(std::ostream &os, const Board &b) {
   for (int i = 0; i < b.size(); i++) os << CHR(b[i]);
   os << "\tSCORE:\t" << b.score;
   return os;
+}
+
+inline bool Board::operator<(const Board &other) const {
+  return score < other.score;
 }
 
 #endif

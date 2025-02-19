@@ -75,6 +75,7 @@ rclpseiaeidntrdgietanrssc	6197
 dhcrsesaegprtndeaiesbltsr	6221
 nsladgitesdnrtrseiaersplb	6229
 rttsreaiegplrndseatedchsr	6247
+sclpdeiaesdntrpgeitosresu	SCORE:	6606	time:	1086.26
 ```
 
 ### Putting it together in a local search algorithm

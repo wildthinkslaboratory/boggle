@@ -224,20 +224,21 @@ void search(Node &root) {
 
   // main loop
   // we can have a max iterations and a max time
-  for (int i = 0; i < 1; i++) {
+  double start_time = get_cpu_time();
+  for (int i = 0; i < 100; i++) {
     // create a population of boards
     Board population[p_size];
 
     // first we hill climb on our boards
     // we do a full probe that requires 100 iterations to reach maximums
-    cout << "hill climbing " << endl;
     for (int j = 0; j < p_size; j++) {
       for (int it = 0; it < 95; it++) {
         population[j] = hill_climb_move(root, population[j]);
-        if (population[j].score > very_best.score) {
-          very_best = population[j];
-          cout << very_best << endl;
-        }
+      }
+      if (population[j].score > very_best.score) {
+        very_best = population[j];
+        cout << very_best << "\t" << "time:\t" << get_cpu_time() - start_time
+             << endl;
       }
     }
 
@@ -250,13 +251,13 @@ void search(Node &root) {
       }
     }
 
-    cout << "polishing" << endl;
     // now we polish our high scorers
     for (size_t j = 0; j < best.size(); j++) {
       best[j] = polish(root, best[j]);
       if (best[j].score > very_best.score) {
         very_best = best[j];
-        cout << very_best << endl;
+        cout << very_best << "\t" << "time:\t" << get_cpu_time() - start_time
+             << endl;
       }
     }
   }
