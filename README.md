@@ -84,3 +84,11 @@ It seems important to hit a large number of starting points either by starting l
 substantial perturbation and down hill moves as we go along. Once good boards have been found that are locally maximal, we need to perturb them and then polish them with steepest ascent climbing.
 
 We will start with a large population of boards, which we'll climb on in parallel using our efficient hill climbing moves. Boards that show potential will be moved to a different group for polishing with perturbation and steepest ascent. We'll continue in this fashion moving both groups forward, adding new boards to the general population and shifting promising boards to the polishing group when appropriate.
+
+```
+redgnseniepirtrlatesbeshd	SCORE:	6012	time:	345.625
+rplchseiasdnrtpgitesnserd	SCORE:	6158	time:	1061.71
+radgnseniemitsrlatepberad	SCORE:	6402	time:	1267.01
+msnedpiterlartscenissgder	SCORE:	6539	time:	1978.37
+rdnsaseitegntrsoiaertclpd	SCORE:	6586	time:	8231.58
+```

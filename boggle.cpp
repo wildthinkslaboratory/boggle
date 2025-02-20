@@ -225,7 +225,7 @@ void search(Node &root) {
   // main loop
   // we can have a max iterations and a max time
   double start_time = get_cpu_time();
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 20; i++) {
     // create a population of boards
     Board population[p_size];
 
