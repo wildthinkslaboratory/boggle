@@ -268,7 +268,10 @@ void search(Node &root) {
 //
 //
 int main(int argc, char **argv) {
-  if (argc < 3) output_commandline_args();
+  if (argc < 3) {
+    output_commandline_args();
+    return 1;
+  }
 
   int dict_arg = 1;
   // check if they've entered a seed
