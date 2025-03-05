@@ -236,23 +236,22 @@ Board polish(Node &root, const Board &iboard) {
 }
 
 const int MAX_ITERATIONS = 20;
+const int POP_SIZE = 500;
+const int BEST_SIZE = 50;
 
 void search(Node &root) {
   Board very_best;
-
-  int p_size = 600;  // population size
-  vector<Board> best;
 
   // main loop
   // we can have a max iterations and a max time
   double start_time = get_cpu_time();
   for (int i = 0; i < MAX_ITERATIONS; i++) {
     // create a population of boards
-    Board population[p_size];
+    Board population[POP_SIZE];
 
     // first we hill climb on our boards
     // we do a full probe that requires 95 iterations to reach maximums
-    for (int j = 0; j < p_size; j++) {
+    for (int j = 0; j < POP_SIZE; j++) {
       for (int it = 0; it < 95; it++) {
         population[j] = hill_climb_move(root, population[j]);
       }
@@ -263,21 +262,13 @@ void search(Node &root) {
       }
     }
 
-    // We polish boards with score over 5000
-    // this is a good number for the dictBig.txt
-    // would be better if this adjusted depending on the
-    // dictionary.
-    for (int j = 0; j < p_size; j++) {
-      if (population[j].score > 5000) {
-        best.push_back(population[j]);
-      }
-    }
+    sort(population, population + POP_SIZE);
 
     // now we polish our high scorers
-    for (size_t j = 0; j < best.size(); j++) {
-      best[j] = polish(root, best[j]);
-      if (best[j].score > very_best.score) {
-        very_best = best[j];
+    for (int j = POP_SIZE - BEST_SIZE; j < POP_SIZE; j++) {
+      population[j] = polish(root, population[j]);
+      if (population[j].score > very_best.score) {
+        very_best = population[j];
         cout << very_best << "\t" << "time:\t" << get_cpu_time() - start_time
              << endl;
       }
