@@ -8,6 +8,17 @@
 #include "util.h"
 using namespace std;
 
+// number of times to try to improve a board with polishing
+const int POLISH_ATTEMPTS = 20;
+// number of flips in a board perturbation
+const int PERTURB_FLIPS = 8;
+
+// //
+// //
+// //
+// int good_letters[19] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k',
+//                         'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u'};
+
 void output_commandline_args() {
   cout << "usage: [-seed <int>] <dictionary_file> <command> <board>" << endl;
   cout << "Seed is optional" << endl;
@@ -15,9 +26,21 @@ void output_commandline_args() {
   cout << "\t\tscore <board>" << endl;
   cout << "\t\twords <board>" << endl;
   cout << "\t\tbenchmark <board>" << endl;
-  cout << "\t\tsteepest_ascent" << endl;
+  cout << "\t\tpolish <board>" << endl;
+  cout << "\t\tsa_probes\t\t # run 100 probes using steepest ascent, save in "
+          "sa_probes.dat"
+       << endl;
+  cout << "\t\thc_probes\t\t # run 100 probes using hill climbing, save in "
+          "hc_probes.dat"
+       << endl;
+  cout << "\t\tperturb <boards_file>\t # read a list of boards then perturb "
+          "and polish them"
+       << endl;
+  cout << "\t\tsearch\t\t\t # search for a high scoring board" << endl;
 }
 
+// to score a board, we walk through each board tile and tally
+// up the score for all words that start that tile
 void score_board(Node &root, Board &b) {
   Node::g_timestamp++;
   int score = 0;
@@ -27,8 +50,9 @@ void score_board(Node &root, Board &b) {
   b.score = score;
 }
 
-// a neighbor is flipping a tile to a new letter. Here we
-// score every single neighbor and take the highest scoring one.
+// find the steepest ascent neighbor for this board.  We consider
+// all boards created by changing a single tile on the board to a new letter
+// and we return the highest scoring neighbor.
 Board steepest_ascent_move(Node &root, const Board &b) {
   Board best_board = b;
   best_board.score = 0;  // allow downward moves if we're at a peak
@@ -86,7 +110,6 @@ Board first_up_move(Node &root, const Board &b) {
 // we randomly flip a tile and letter and we keep
 // flipping until we improve our score. We quit after
 // 200 failed flips.
-
 Board hill_climb_move(Node &root, const Board &b) {
   Board nb = b;
   for (size_t j = 0; j < 300; j++) {
@@ -102,14 +125,14 @@ Board hill_climb_move(Node &root, const Board &b) {
   return b;
 }
 
+// Run a series of probes using steepest ascent
+// Output the probes to a file
 //
-//
-//
-void steepest_ascent_probes(Node &root) {
+void steepest_ascent_probes(Node &root, const int num_probes) {
   ofstream outfile;
   outfile.open("sa_probes.dat", std::ios_base::app);
 
-  for (size_t j = 0; j < 10; j++) {
+  for (size_t j = 0; j < num_probes; j++) {
     Board b;
     Board best = b;
     int it_to_max = 0;
@@ -129,14 +152,14 @@ void steepest_ascent_probes(Node &root) {
   outfile.close();
 }
 
+// Run a series of probes using first uphill
+// Output the probes to a file
 //
-//
-//
-void first_up_probes(Node &root) {
+void first_up_probes(Node &root, const int num_probes) {
   ofstream outfile;
   outfile.open("fu_probes.dat", std::ios_base::app);
 
-  for (size_t j = 0; j < 200; j++) {
+  for (size_t j = 0; j < num_probes; j++) {
     Board b;
     Board best = b;
     int it_to_max = 0;
@@ -156,14 +179,14 @@ void first_up_probes(Node &root) {
   outfile.close();
 }
 
+// Run a series of probes using hill climbing
+// Output the probes to a file
 //
-//
-//
-void hill_climb_probes(Node &root) {
+void hill_climb_probes(Node &root, const int num_probes) {
   ofstream outfile;
   outfile.open("hc_probes.dat", std::ios_base::app);
 
-  for (size_t j = 0; j < 200; j++) {
+  for (size_t j = 0; j < num_probes; j++) {
     Board b;
     Board best = b;
     int it_to_max = 0;
@@ -183,8 +206,9 @@ void hill_climb_probes(Node &root) {
   outfile.close();
 }
 
-void perturb(Board &b) {
-  for (int k = 0; k < 8; k++) {
+// randomly flip some tiles in the board
+void perturb(Board &b, int num_flips) {
+  for (int k = 0; k < num_flips; k++) {
     // randomly flip a tile
     int index = rand() % 25;  // random tile and letter
     int letter = rand() % 26;
@@ -192,12 +216,14 @@ void perturb(Board &b) {
   }
 }
 
+// randomly perturb a board and then apply
+// steepest ascent to the perturbed board
 Board polish(Node &root, const Board &iboard) {
   int original_score = iboard.score;
   Board best = iboard;
-  for (int k = 0; k < 20; k++) {
+  for (int k = 0; k < POLISH_ATTEMPTS; k++) {
     Board b = iboard;
-    perturb(b);
+    perturb(b, PERTURB_FLIPS);
 
     for (int j = 0; j < 15; j++) {
       b = steepest_ascent_move(root, b);
@@ -209,28 +235,23 @@ Board polish(Node &root, const Board &iboard) {
   return best;
 }
 
-//
-//
-//
-int good_letters[19] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k',
-                        'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u'};
+const int MAX_ITERATIONS = 20;
 
 void search(Node &root) {
   Board very_best;
 
   int p_size = 600;  // population size
-  int b_size = 10;   // size of high scoring group
   vector<Board> best;
 
   // main loop
   // we can have a max iterations and a max time
   double start_time = get_cpu_time();
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < MAX_ITERATIONS; i++) {
     // create a population of boards
     Board population[p_size];
 
     // first we hill climb on our boards
-    // we do a full probe that requires 100 iterations to reach maximums
+    // we do a full probe that requires 95 iterations to reach maximums
     for (int j = 0; j < p_size; j++) {
       for (int it = 0; it < 95; it++) {
         population[j] = hill_climb_move(root, population[j]);
@@ -242,9 +263,10 @@ void search(Node &root) {
       }
     }
 
-    // move high scoring boards into the best group
-    // need to sort them and take highest 10%
-    // but I don't want to write a sorting algorithm
+    // We polish boards with score over 5000
+    // this is a good number for the dictBig.txt
+    // would be better if this adjusted depending on the
+    // dictionary.
     for (int j = 0; j < p_size; j++) {
       if (population[j].score > 5000) {
         best.push_back(population[j]);
@@ -291,9 +313,9 @@ int main(int argc, char **argv) {
     // manage various commands
     if (argc <= command_arg + 1) {  // no board arg
       if (command == "sa_probes") {
-        steepest_ascent_probes(dictionary_root);
+        steepest_ascent_probes(dictionary_root, 100);
       } else if (command == "hc_probes") {
-        hill_climb_probes(dictionary_root);
+        hill_climb_probes(dictionary_root, 100);
       } else if (command == "search") {
         search(dictionary_root);
       } else {
@@ -337,7 +359,7 @@ int main(int argc, char **argv) {
         cout << "time to score 1000 boards: " << get_cpu_time() - start_time
              << endl;
         cout << b << endl;
-      } else if (command == "polishing") {
+      } else if (command == "polish") {
         string s;
         Board b;
         if (argc == command_arg + 2) {  // read in a board if given
@@ -345,11 +367,13 @@ int main(int argc, char **argv) {
           b = Board(s);
         }
 
-        double start_time = get_cpu_time();
         score_board(dictionary_root, b);
-        Board refined_board = steepest_ascent_double(dictionary_root, b);
-        cout << "time: " << get_cpu_time() - start_time << endl;
-        cout << refined_board << endl;
+        cout << b << endl;
+        double start_time = get_cpu_time();
+        Board polished_board = polish(dictionary_root, b);
+        double time = get_cpu_time() - start_time;
+        cout << polished_board << endl;
+        cout << "time: " << time << endl;
       } else if (command == "perturb") {
         read_boards(argv[dict_arg + 2]);
         for (size_t i = 0; i < input_boards.size(); i++) {
